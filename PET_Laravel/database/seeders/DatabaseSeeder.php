@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
         ]);
 
+        \App\Models\Transaction::factory()->count(20)->create();
+
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',

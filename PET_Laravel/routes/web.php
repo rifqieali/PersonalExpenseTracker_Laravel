@@ -13,8 +13,9 @@ Route::get('/dashboard', function () {
 
 Route::get('/transactions', [TransactionController::class, 'index'])
     ->name('transactions.index');
+Route::post('/transactions', [TransactionController::class, 'store'])
+    ->name('transactions.store');
+Route::get('/transactions/create', [TransactionController::class, 'create'])
+    ->name('transactions.create');
 
-Route::get('/test-flash', function(){
-    return redirect()->route('dashboard')
-    ->with('success', 'Flash message successfully set!');
-});
+

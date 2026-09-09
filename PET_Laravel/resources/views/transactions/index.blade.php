@@ -13,7 +13,8 @@
 <td>{{ $t->category->name ?? '-' }}</td>
 <td><span class="{{ $t->type==='income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} px-2 rounded">{{ $t->type }}</span></td>
 <td>Rp {{ number_format($t->amount,0,',','.') }}</td>
-<td><a href="#">Tambah</a> <a href="#">Edit</a></td>
+<td><a href="{{ route('transactions.create') }}" class="text-blue-500 hover:text-blue-700">Tambah</a>
+    <a href="#" class="text-yellow-500 hover:text-yellow-700">Edit</a></td>
 </tr>
 @empty
 <tr><td colspan="6">Belum ada transaksi</td></tr>

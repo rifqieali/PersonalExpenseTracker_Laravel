@@ -15,10 +15,10 @@
         <nav class="mx-auto flex max-w-7xl justify-between px-4 sm:px-6 lg:px-8">
             <ul class="flex space-x-4">
                 <li class="border-b-2 border-blue-500">
-                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'text-blue-500' : 'text-gray-700 hover:text-blue-500' }}">Personal Expense Tracker</a>
+                    <a href="{{ route('welcome') }}" class="{{ request()->routeIs('welcome') ? 'text-blue-500' : 'text-gray-700 hover:text-blue-500' }}">Personal Expense Tracker</a>
                 </li>
                 <li class="">
-                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'text-blue-500' : 'text-gray-700 hover:text-blue-500' }}">Dashboard</a>
+                    <a href="{{ route('dashboard.index') }}" class="{{ request()->routeIs('dashboard.index') ? 'text-blue-500' : 'text-gray-700 hover:text-blue-500' }}">Dashboard</a>
                 </li>
                 <li class="">
                     <a href="{{ route('transactions.index') }}" class="{{ request()->routeIs('transactions.*') ? 'text-blue-500' : 'text-gray-700' }}">Transaksi</a>

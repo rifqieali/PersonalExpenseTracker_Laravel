@@ -3,6 +3,7 @@
 @section('content')
 <div class="mx-auto max-w-7xl px-4 py-8">
 <h1 class="text-2xl font-bold mb-4">Transaksi</h1>
+<button><a href="{{ route('transactions.create') }}" class="text-blue-500 hover:text-blue-700">Tambah</a></button>
 
 <div class="border-2 border-black p-3 mb-0 bg-white" style="border-color: var(--ink);">
     <form method="GET" action="{{ route('transactions.index') }}" class="flex flex-col sm:flex-row gap-2">
@@ -48,7 +49,7 @@
 <td>{{ $t->category->name ?? '-' }}</td>
 <td><span class="{{ $t->type==='income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} px-2 rounded">{{ $t->type }}</span></td>
 <td>Rp {{ number_format($t->amount,0,',','.') }}</td>
-<td><a href="{{ route('transactions.create') }}" class="text-blue-500 hover:text-blue-700">Tambah</a>
+<td>
     <a href="{{ route('transactions.edit', $t->id) }}" class="text-yellow-500 hover:text-yellow-700">Edit</a>
     <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="inline">
         @csrf

@@ -10,12 +10,36 @@ use App\Http\Requests\UpdateTransactionRequest;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::with('category')->latest('transaction_date')
-        ->paginate(10)->withQueryString();
+        $search = $request->query('search');
+        $category_id = $request->query('category_id');
+        $type = $request->query('type');
+        $date_from = $request->query('date_from');
+        $date_to = $request->query('date_to');
 
-        return view('transactions.index', compact('transactions'));
+        $transactions = Transaction::with('category')
+        ->when($search, function ($query, $search) {
+            $query->where('description', 'like', "%{$search}%");
+        })
+        ->when($category_id, function ($query, $category_id) {
+                $query->forCategory($category_id);
+            })
+        ->when($type, function ($query, $type) {
+            $query->where('type', $type);
+        })
+        ->when($date_from, function ($query, $date_from) {
+            $query->where('transaction_date', '>=', $date_from );
+            })
+        ->when($date_to, function ($query, $date_to) {
+            $query->where('transaction_date', '<=', $date_to);
+        })
+        ->latest('transaction_date')
+        ->paginate(10)
+        ->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+        return view('transactions.index', compact('transactions', 'search', 'categories'));
     }
 
     public function create()

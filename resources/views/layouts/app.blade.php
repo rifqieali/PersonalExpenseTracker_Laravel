@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Personal Expense Tracker')</title>
+    <!-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> -->
     <!-- <script src="https://unpkg.com/@tailwindcss/ui@0.7.2/dist/tailwindcss-ui.js"></script> -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

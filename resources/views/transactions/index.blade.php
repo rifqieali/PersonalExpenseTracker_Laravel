@@ -38,8 +38,8 @@
 </div>
 
 
-<div x-data="{ open: false, selected: null }" @keydown.escape.window="open = false">
-
+<div x-data="{ open: false, selected: null, confirmOpen: false, deleteUrl: '', deleteLabel: '' }" @keydown.escape.window="open = false; confirmOpen = false">
+<div x-data="{confirmOpen:false, deleteUrl:'', deleteLabel:''}">
 <table class="w-full border">
 <thead><tr><th>Tanggal</th><th>Deskripsi</th><th>Kategori</th><th>Tipe</th><th>Nominal</th><th>Aksi</th></tr></thead>
 <tbody>
@@ -56,11 +56,8 @@
     @endphp
     <button type="button" @click="selected = JSON.parse($event.currentTarget.dataset.row); open = true" data-row='@json($row)'>Detail</button>
     <a href="{{ route('transactions.edit', $t->id) }}" class="text-yellow-500 hover:text-yellow-700">Edit</a>
-    <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="inline">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="text-red-500 hover:text-red-700" onclick="return confirm('Are you sure?')">Hapus</button>
-    </form>
+    <button type="button" class="text-red-500 hover:text-red-700" @click="deleteUrl = $event.currentTarget.dataset.url; deleteLabel = $event.currentTarget.dataset.label;
+    confirmOpen = true" data-url="{{ route('transactions.destroy', $t->id) }}" data-label="{{ $t->description ?? '-' }}">Hapus</button>
 </td>
 </tr>
 @empty
@@ -77,6 +74,19 @@
         <p x-text="selected?.amount ?? '-'"></p>
         <p x-text="selected?.date ?? '-'"></p>
         <button @click="open = false">Tutup</button>
+    </div>
+    </div>
+<div x-show="confirmOpen" x-cloak x-transition class="fixed inset-0 z-50 bg-black bg-opacity-50">
+    <div @click="confirmOpen = false" class="absolute inset-0"></div>
+    <div @click.stop class="relative bg-white p-4">
+        <p>Yakin hapus transaksi ini?</p>
+        <p x-text="deleteLabel"></p>
+        <form method="POST" :action="deleteUrl" class="inline">
+            @csrf
+            @method('DELETE')
+            <button type="button" @click="confirmOpen = false">Batal</button>
+            <button type="submit">Ya, Hapus</button>
+        </form>
     </div>
     </div>
 </div>

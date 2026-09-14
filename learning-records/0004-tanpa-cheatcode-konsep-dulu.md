@@ -1,0 +1,3 @@
+# Issue #13 diajarkan konsep-dulu: resepsionis, amplop, segel
+
+User meminta diajari issue #13 (modal konfirmasi hapus) tanpa cheatcode: konsep + analogi + transfer ke study case lain. Lesson 0003 memakai tiga analogi (resepsionis-vs-gudang untuk pemisahan Alpine/Laravel, amplop kapur untuk `:action` binding, surat bersegel untuk spoof+CSRF) dan contoh transfer yang disengaja DI LUAR jawaban (galeri `:src`, logout POST) agar tak bisa disalin mentah. Preferensi "tanpa kode jadi" dicatat di NOTES.md dan berlaku untuk session berikutnya: beri pertanyaan panduan bernomor, eskalasi jadi petunjuk hanya jika mentok >20 menit.

@@ -1,0 +1,3 @@
+# #12 vs #13 setelah diterapkan: isi vs tujuan
+
+Modal #12 dan #13 kini hidup berdampingan di `index.blade.php` dalam satu `x-data`. Perbedaan yang terbukti lewat penerapan: #12 mengisi *isi* modal (`selected` + `x-text`, tanpa form), #13 mengisi *tujuan* form (`deleteUrl` + `:action`, form POST + `@csrf` + `@method('DELETE')` di dalam modal). Satu state dipakai ulang untuk N baris di keduanya; tombol Konfirmasi `type="submit"` mengembalikan kendali ke Laravel (redirect + flash), tombol Tutup/Batal murni Alpine. Sambil menerapkan ditemukan satu `</div>` berlebih peninggalan struktur lama — dibuang agar nesting seimbang.

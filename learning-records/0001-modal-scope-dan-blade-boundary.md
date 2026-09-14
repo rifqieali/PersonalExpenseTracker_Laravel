@@ -1,0 +1,3 @@
+# Percobaan modal #12: scope, sintaks event, dan batas Blade/Alpine
+
+User mencoba modal Alpine di `resources/views/transactions/index.blade.php:43-52` dengan satu `x-data` di dalam `<table>`, sintaks `@click` invalid (`selected {...}` tanpa `=` dan tanpa `open=true`), dan tanpa `data-*`/`@json`. Ini menunjukkan tiga lantai yang belum kokoh: (1) state Alpine tinggal di elemen `x-data`, (2) isi `@click` adalah ekspresi JS, (3) Blade (server) → Alpine (browser) hanya lewat HTML. Penting karena semua lesson modal berikutnya bertumpu pada ketiganya; ajarkan perbaikan struktur dulu sebelum sentuh fetch/AJAX.

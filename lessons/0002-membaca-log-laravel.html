@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0002 — Membaca Log Laravel saat Halaman 500</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+<header class="lesson-head">
+<div class="kicker">Lesson 0002 · debugging · ±6 menit · lanjutan dari <a href="0001-modal-detail-alpine.html">Lesson 0001</a></div>
+<h1>Halaman 500? Baca log, bukan menebak</h1>
+<p class="subtitle">Satu kemenangan: dari pesan error kamu bisa menunjuk baris penyebabnya dalam 1 menit.</p>
+</header>
+
+<p>Kasus nyata barusan: halaman transaksi 500. Dugaan awal "salah konsep Alpine di <code class="inline">@click</code>" — ternyata penyebabnya koma ganda di PHP: <code class="inline">?? '-',, 'type'</code> di <code class="inline">resources/views/transactions/index.blade.php:55</code>.</p>
+
+<h2>Langkahnya (selalu sama)</h2>
+<pre>tail -n 30 storage/logs/laravel.log</pre>
+<p>Cari baris <code class="inline">local.ERROR</code> pertama, baca pesannya sampai kata <code class="inline">at ...</code>:</p>
+<pre>local.ERROR: Cannot use empty array elements in arrays
+  at .../storage/framework/views/ca2560....php:54</pre>
+<table>
+<tr><th>Potongan pesan</th><th>Artinya</th></tr>
+<tr><td><code class="inline">Cannot use empty array elements</code></td><td>Ada elemen kosong di array — curigai koma ganda <code class="inline">,,</code> atau koma nyasar.</td></tr>
+<tr><td><code class="inline">storage/framework/views/*.php:54</code></td><td>Ini <strong>hasil compile Blade</strong>, bukan file aslimu. Buka baris 54 di situ, lalu petakan ke <code class="inline">.blade.php</code> yang sesuai.</td></tr>
+</table>
+<p>Konsepnya: Blade tidak dijalankan langsung — ia diterjemahkan dulu jadi PHP polos di <code class="inline">storage/framework/views/</code>. Jadi error PHP selalu menunjuk file compile; tugasmu menerjemahkannya balik ke Blade. Setelah perbaiki Blade, jalankan <code class="inline">php artisan view:clear</code> agar compile lama tidak dipakai lagi.</p>
+<div class="good"><strong>Benar.</strong> Pesan → file compile + baris → baris Blade → perbaiki → <code class="inline">view:clear</code> → refresh.</div>
+<div class="bad"><strong>Salah.</strong> Menebak-nebak bagian Alpine/JS padahal pesannya jelas menyebut array (PHP).</div>
+
+<div class="source"><strong>Sumber utama:</strong> <a href="https://laravel.com/docs/errors">Laravel Docs — Error Handling &amp; Logging</a>. Pendamping: <a href="../reference/alpine-modal-cheatsheet.html">cheatsheet modal</a>.</div>
+
+<div class="quiz" x-data="{ q1:null }">
+<h2>Retrieval check</h2>
+<p><strong>Q1.</strong> Path <code class="inline">storage/framework/views/*.php</code> di pesan error adalah…</p>
+<button @click="q1='a'">File Blade asli</button>
+<button @click="q1='b'">Hasil kompilasi Blade</button>
+<button @click="q1='c'">Cache route aplikasi</button>
+<p class="fb" x-show="q1==='a'" style="display:none" :style="q1==='a' && {display:'block'}">Belum tepat — file asli berakhiran .blade.php. ❌</p>
+<p class="fb" x-show="q1==='b'">Tepat — selalu petakan balik ke .blade.php. ✅</p>
+<p class="fb" x-show="q1==='c'">Belum tepat — route cache tinggal di bootstrap/. ❌</p>
+<p><strong>Q2 (lisan).</strong> Habis edit Blade tapi error lama masih muncul — perintah apa yang dijalankan? (Jawab tanpa melihat: <code class="inline">php artisan view:clear</code>.)</p>
+</div>
+
+<div class="nav"><a href="0001-modal-detail-alpine.html">← Lesson 0001</a><span>Lesson 0003 → belum ada</span></div>
+<footer class="ask">Masih buram? Tanyakan ke agent gurumu — mis. "kenapa error menunjuk file yang tidak saya tulis?" Jangan lanjut ke fitur baru sebelum Q1–Q2 bisa dijawab tanpa melihat.</footer>
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.2/dist/cdn.min.js"></script>
+</body>
+</html>

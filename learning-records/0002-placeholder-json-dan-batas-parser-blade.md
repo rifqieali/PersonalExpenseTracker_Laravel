@@ -1,0 +1,3 @@
+# Placeholder `[...]` disalin mentah + `@json` tak tahan ekspresi bersarang
+
+User menyalin `data-row='@json([...])'` dari cheatsheet lesson 0001 secara literal. Dua lapis pelajaran: (1) `[...]` di cheatsheet adalah placeholder yang wajib diganti data nyata — buktinya `view:cache` lolos tapi halaman 500 (`json_encode([...])` bukan PHP valid). (2) Saat diganti array inline kompleks, compiler Blade memotong ekspresi `@json(...)` di tengah (hasil compile berhenti setelah `$t->type`), sehingga pola aman di workspace ini: rakit array di blok `@php ... @endphp` dulu, lalu `@json($row)` sederhana. Cheatsheet sudah diperbaiki mengikuti pola ini. Implikasi: setiap contoh placeholder di lesson/reference wajib dilabeli `ganti dengan ...` agar tidak disalin mentah.

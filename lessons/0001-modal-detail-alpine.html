@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0001 — Modal Detail Alpine: 4 Konsep yang Salah</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>[x-cloak]{display:none!important}</style>
+</head>
+<body>
+<main>
+<header class="lesson-head">
+<div class="kicker">Lesson 0001 · Issue #12 · Alpine modal · ±8 menit</div>
+<h1>Modal Detail: 4 konsep yang salah di kodenya</h1>
+<p class="subtitle">Satu kemenangan: kamu bisa menunjuk baris yang salah dan tahu perbaikannya tanpa menebak.</p>
+</header>
+
+<p>Konteks: di branch <code class="inline">feat/alpineDetail</code>, file <code class="inline">resources/views/transactions/index.blade.php:43–52</code> ada satu blok <code class="inline">x-data</code> di dalam <code class="inline">&lt;table&gt;</code>, satu tombol Detail di luar loop, dan modal yang tidak pernah terbuka. Ini bedah konsepnya.</p>
+
+<h2>1. Scope: state tinggal di elemen <code class="inline">x-data</code></h2>
+<p><code class="inline">x-data="{ open:false, selected:null }"</code> artinya: "elemen ini punya memori <code class="inline">open</code> dan <code class="inline">selected</code>, hanya anak-anaknya yang boleh pakai." Kodenya menaruh <code class="inline">x-data</code> mengelilingi <strong>satu</strong> tombol di atas tabel — di luar <code class="inline">@forelse</code>. Jadi tombol itu tidak kenal baris mana yang diklik.</p>
+<div class="bad"><strong>Salah.</strong> Satu <code class="inline">x-data</code> di atas tabel + satu tombol tanpa data baris.</div>
+<div class="good"><strong>Benar.</strong> Satu <code class="inline">x-data</code> membungkus <em>seluruh</em> tabel + modal, dan tombol Detail ada <em>di dalam loop per baris</em>, masing-masing membawa datanya sendiri. (<a href="https://alpinejs.dev/start-here">Alpine Start Here</a>)</div>
+
+<h2>2. Sintaks event: harus assignment</h2>
+<pre>@click="selected {$event.currentTarget.dataset}"   ← bukan JS valid</pre>
+<p>Kurawal tanpa <code class="inline">=</code> tidak mengisi apa-apa, dan <code class="inline">open</code> tidak pernah jadi <code class="inline">true</code> — maka <code class="inline">x-show="open"</code> selamanya sembunyi. Ditambah tombolmu tidak punya atribut <code class="inline">data-*</code>, jadi <code class="inline">dataset</code>-nya kosong.</p>
+<div class="good"><strong>Benar.</strong> <code class="inline">@click="selected = { description: '...' }; open = true"</code> — isi dulu, baru buka.</div>
+
+<h2>3. Batas Blade vs Alpine: server vs browser</h2>
+<p>Laravel/Blade render di <strong>server</strong> (jadi HTML), Alpine hidup di <strong>browser</strong> (setelah HTML sampai). Alpine tidak bisa membaca variabel <code class="inline">$t</code> langsung — harus dititipkan lewat HTML: atribut <code class="inline">data-*</code> atau <code class="inline">@json</code>. Itulah jawaban interview untuk "kenapa data tetap dari Laravel": Laravel menyiapkan data, Alpine hanya show/hide. (<a href="https://laravel.com/docs/blade">Blade Docs</a>)</p>
+<pre>&lt;button
+  @click="selected = JSON.parse($event.currentTarget.dataset.row); open = true"
+  data-row='@json(["description" =&gt; $t-&gt;description, "amount" =&gt; $t-&gt;amount])'&gt;
+  Detail
+&lt;/button&gt;</pre>
+
+<h2>4. Struktur HTML: <code class="inline">&lt;div&gt;</code> tidak boleh jadi anak langsung <code class="inline">&lt;table&gt;</code></h2>
+<p>Browser otomatis mengeluarkan <code class="inline">&lt;div&gt;</code> dari dalam <code class="inline">&lt;table&gt;</code> (HTML invalid), jadi layout pecah. Modal juga belum punya backdrop, tombol close, atau Escape.</p>
+<div class="good"><strong>Benar.</strong> Modal di <em>luar/bawah</em> tabel sebagai overlay <code class="inline">fixed inset-0</code>: backdrop pakai <code class="inline">@click.self="open = false"</code>, jendela dengar <code class="inline">@keydown.escape.window="open = false"</code>. (<a href="https://alpinejs.dev/component/dropdown">pola resmi Escape + click.outside</a>)</div>
+<pre>&lt;div x-data="{ open:false, selected:null }" @keydown.escape.window="open = false"&gt;
+  &lt;table&gt;... @forelse ... tombol Detail per baris ... @endforelse &lt;/table&gt;
+  &lt;div x-show="open" x-cloak class="fixed inset-0"&gt;
+    &lt;div @click="open = false" class="absolute inset-0 bg-black/50"&gt;&lt;/div&gt;
+    &lt;div @click.stop class="relative bg-white p-4"&gt;
+      &lt;p x-text="selected?.description"&gt;&lt;/p&gt;
+      &lt;button @click="open = false"&gt;Tutup&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+<p>Catatan: <code class="inline">x-cloak</code> butuh CSS <code class="inline">[x-cloak]{display:none}</code> supaya modal tidak kedip sebelum Alpine siap. Dan branch-mu <code class="inline">feat/alpineDetail</code> ≠ <code class="inline">issue/12-detail-modal</code> yang diminta issue — ganti nama saat siap.</p>
+
+<div class="source"><strong>Sumber utama:</strong> <a href="https://alpinejs.dev/start-here">Alpine.js — Start Here</a> (x-data, x-show, event). Pendamping: <a href="../reference/alpine-modal-cheatsheet.html">cheatsheet modal Blade + Alpine</a>.</div>
+
+<div class="quiz" x-data="{ q1:null }">
+<h2>Retrieval check (jawab dari ingatan)</h2>
+<p><strong>Q1.</strong> Di mana state Alpine tinggal?</p>
+<button @click="q1='a'">Di server Laravel</button>
+<button @click="q1='b'">Di elemen x-data</button>
+<button @click="q1='c'">Di file app.js</button>
+<p class="fb" x-show="q1==='a'">Belum tepat — server hanya mengirim HTML. Cek bagian 1 &amp; 3. ❌</p>
+<p class="fb" x-show="q1==='b'">Tepat — state menempel di elemen x-data. ✅</p>
+<p class="fb" x-show="q1==='c'">Belum tepat — app.js tidak menyimpan state ini. ❌</p>
+<p><strong>Q2.</strong> Kenapa modalmu tidak pernah muncul? (jawab lisan, lalu cek): karena <code class="inline">open</code> tidak pernah di-set <code class="inline">true</code> + sintaks <code class="inline">@click</code> invalid. Kalau bisa menyebut keduanya tanpa melihat, anggap lulus.</p>
+</div>
+
+<div class="nav"><span>← belum ada lesson sebelumnya</span><a href="../reference/alpine-modal-cheatsheet.html">Cheatsheet modal →</a></div>
+<footer class="ask">Masih buram? Tanyakan ke agent gurumu apa saja — mis. "kenapa dataset selalu string?" atau "kapan pakai @json vs data-*?". Jangan lanjut ke kode sebelum Q1 bisa dijawab tanpa melihat.</footer>
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.2/dist/cdn.min.js"></script>
+</body>
+</html>

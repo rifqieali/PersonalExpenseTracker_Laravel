@@ -38,6 +38,7 @@
 </div>
 
 
+<div x-data="{ open: false, selected: null }" @keydown.escape.window="open = false">
 
 <table class="w-full border">
 <thead><tr><th>Tanggal</th><th>Deskripsi</th><th>Kategori</th><th>Tipe</th><th>Nominal</th><th>Aksi</th></tr></thead>
@@ -50,6 +51,10 @@
 <td><span class="{{ $t->type==='income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} px-2 rounded">{{ $t->type }}</span></td>
 <td>Rp {{ number_format($t->amount,0,',','.') }}</td>
 <td>
+    @php
+        $row = ['description' => $t->description, 'category_name' => $t->category->name ?? '-', 'type' => $t->type, 'amount' => $t->amount, 'date' => $t->transaction_date->format('d M Y')];
+    @endphp
+    <button type="button" @click="selected = JSON.parse($event.currentTarget.dataset.row); open = true" data-row='@json($row)'>Detail</button>
     <a href="{{ route('transactions.edit', $t->id) }}" class="text-yellow-500 hover:text-yellow-700">Edit</a>
     <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="inline">
         @csrf
@@ -63,6 +68,20 @@
 @endforelse
 </tbody>
 </table>
+<div x-show="open" x-cloak x-transition class="fixed inset-0 z-50 bg-black bg-opacity-50">
+    <div @click="open = false" class="absolute inset-0"></div>
+    <div @click.stop class="relative bg-white p-4">
+        <p x-text="selected?.description ?? '-'"></p>
+        <p x-text="selected?.category_name ?? '-'"></p>
+        <p x-text="selected?.type ?? '-'"></p>
+        <p x-text="selected?.amount ?? '-'"></p>
+        <p x-text="selected?.date ?? '-'"></p>
+        <button @click="open = false">Tutup</button>
+    </div>
+    </div>
+</div>
+</div>
+<style>[x-cloak]{display:none!important}</style>
 {{ $transactions->links() }}
 </div>
 @endsection

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheatsheet — Modal Blade + Alpine (tanpa x-for)</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+<header class="lesson-head">
+<div class="kicker">Reference · pendamping Lesson 0001</div>
+<h1>Modal Blade + Alpine: pola minimal</h1>
+<p class="subtitle">Aturan issue #12: Blade render list, Alpine hanya show/hide. Tanpa SPA, tanpa x-for.</p>
+</header>
+<h2>Kerangka</h2>
+<pre>&lt;div x-data="{ open:false, selected:null }" @keydown.escape.window="open = false"&gt;
+  &lt;table&gt;
+    @forelse($transactions as $t)
+      &lt;tr&gt;
+        &lt;td&gt;{{ $t-&gt;description }}&lt;/td&gt;
+        &lt;td&gt;
+          @php
+            $row = ['description' =&gt; $t-&gt;description, 'category_name' =&gt; $t-&gt;category-&gt;name ?? '-', 'type' =&gt; $t-&gt;type, 'amount' =&gt; $t-&gt;amount];
+          @endphp
+          &lt;button
+            @click="selected = JSON.parse($event.currentTarget.dataset.row); open = true"
+            data-row='@json($row)'&gt;Detail&lt;/button&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    @endforelse
+  &lt;/table&gt;
+  &lt;div x-show="open" x-cloak x-transition class="fixed inset-0 z-50"&gt;
+    &lt;div @click="open = false" class="absolute inset-0 bg-black/50"&gt;&lt;/div&gt;
+    &lt;div @click.stop class="relative bg-white p-4"&gt;
+      &lt;p x-text="selected?.description ?? '-'"&gt;&lt;/p&gt;
+      &lt;p x-text="selected?.category_name ?? '-'"&gt;&lt;/p&gt;
+      &lt;button @click="open = false"&gt;Tutup&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;style&gt;[x-cloak]{display:none!important}&lt;/style&gt;</pre>
+<h2>Glosa singkat</h2>
+<table>
+<tr><th>Istilah</th><th>Artinya</th></tr>
+<tr><td><code class="inline">x-data</code></td><td>Memori komponen; menempel di satu elemen DOM.</td></tr>
+<tr><td><code class="inline">x-show</code></td><td>Tampilkan/sembunyikan tanpa hapus dari DOM.</td></tr>
+<tr><td><code class="inline">@click / x-on</code></td><td>Dengar event; isinya ekspresi JS.</td></tr>
+<tr><td><code class="inline">dataset / data-*</code></td><td>Jembatan string dari Blade ke JS.</td></tr>
+<tr><td><code class="inline">@json</code></td><td>Cetak array PHP jadi JSON aman untuk atribut.</td></tr>
+<tr><td><code class="inline">x-cloak</code></td><td>Sembunyikan sampai Alpine siap (butuh CSS).</td></tr>
+</table>
+<h2>Jangan</h2>
+<ul>
+<li>Jangan taruh <code class="inline">&lt;div&gt;</code> langsung di dalam <code class="inline">&lt;table&gt;</code>.</li>
+<li>Jangan lupa <code class="inline">open = true</code> di tombol Detail.</li>
+<li>Jangan baca <code class="inline">$t</code> dari Alpine — selalu via <code class="inline">data-*</code>/<code class="inline">@json</code>.</li>
+<li>Jangan pakai <code class="inline">x-for</code> di issue ini.</li>
+</ul>
+<div class="nav"><a href="../lessons/0001-modal-detail-alpine.html">← Lesson 0001</a><span>Sumber: alpinejs.dev, Laravel Blade docs</span></div>
+</main>
+</body>
+</html>

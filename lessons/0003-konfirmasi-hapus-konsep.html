@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0003 — Satu Pintu, Banyak Kunci: Konsep Konfirmasi Hapus</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+<header class="lesson-head">
+<div class="kicker">Lesson 0003 · Issue #13 · konsep saja, tanpa kode jadi · ±10 menit</div>
+<h1>Satu pintu, banyak kunci</h1>
+<p class="subtitle">Aturan lesson ini: tidak ada kode yang bisa disalin mentah. Kamu yang akan menulisnya — setelah konsepnya nempel.</p>
+</header>
+
+<p>Issue #12 memberimu <strong>satu modal isi ulang</strong> (klik baris → isi modal berganti). Issue #13 meminta hal yang tampak mirip tapi beda jenis: <strong>satu modal aksi ulang</strong> (klik hapus di baris mana pun → satu form yang sama, tapi alamat tujuannya berganti). Empat konsep di bawah ini fondasinya.</p>
+
+<h2>1. Resepsionis vs gudang (pemisahan tanggung jawab)</h2>
+<p>Bayangkan kantor logistik. <strong>Resepsionis</strong> (Alpine) tugasnya hanya bertanya ke pengunjung: "Yakin mau buang barang ini?" Ia tidak punya kunci gudang. <strong>Petugas gudang</strong> (Laravel) yang benar-benar membuang barang di database — karena hanya ia yang pegang otoritas dan catatan resmi.</p>
+<p>Kalau resepsionis ikut membuang barang sendiri (hapus via JS/fetch langsung), tidak ada catatan resmi, tidak ada pemeriksaan hak akses, tidak ada yang bisa diaudit. Makanya issue menulis: <em>eksekusi hapus tetap oleh Laravel</em>.</p>
+<p><strong>Transfer ke kasus lain:</strong> pola yang sama berlaku untuk semua aksi merusak — <em>logout</em> (tombol hanya bertanya/meminta, server yang mencabut sesi), <em>batalkan pesanan</em>, <em>cabut akses API</em>. Pertanyaan interview "kenapa Laravel tetap yang hapus?" jawabannya selalu satu kalimat: <em>browser hanya boleh meminta, server yang memutuskan dan mencatat.</em></p>
+
+<h2>2. Tanda titik-dua <code class="inline">:</code> = alamat amplop yang ditulis ulang</h2>
+<p>Bayangkan sebuah <strong>amplop ajaib</strong>. Atribut HTML biasa (<code class="inline">action="/transaksi/5"</code>) seperti alamat yang ditulis permanen dengan spidol — tidak berubah. Atribut bertitik-dua (<code class="inline">:action="..."</code>) seperti alamat yang ditulis kapur di papan kecil: setiap kali isi papan (state) berubah, tulisan di amplop ikut berubah. Itu yang dimaksud dokumentasi resmi: <em>colon prefix is shorthand for x-bind; it dynamically sets the attribute</em> (<a href="https://alpinejs.dev/essentials/templating">Alpine — Templating</a>).</p>
+<p>Contoh <strong>di luar</strong> issue-mu supaya tidak jadi contekan: galeri foto dengan <code class="inline">:src="fotoTerpilih"</code> — satu tag <code class="inline">&lt;img&gt;</code>, gambarnya berganti tiap thumbnail diklik. Atau tombol <code class="inline">:disabled="keranjangKosong"</code> — satu tombol, kadang aktif kadang mati mengikuti state.</p>
+<p><strong>Transfer ke kasus lain:</strong> kapan pun kamu punya <strong>satu elemen, banyak kemungkinan nilai</strong> — alamat form, gambar, link, class, disabled — itulah bau khas butuh titik-dua. Kalau nilainya tetap selamanya, atribut biasa cukup.</p>
+
+<h2>3. Surat bersegel (method spoofing + CSRF)</h2>
+<p>Form HTML di browser itu seperti kantor pos yang hanya menjual <strong>dua jenis perangko: GET dan POST</strong>. Tidak ada perangko DELETE. Jadi Laravel memakai trik: kirim surat POST biasa, tapi selipkan memo di dalamnya — <code class="inline">@method('DELETE')</code> — yang artinya "pak pos (router Laravel), tolong anggap surat ini sebagai DELETE." Ditambah <code class="inline">@csrf</code>, yaitu <strong>segel lilin</strong> yang membuktikan surat ini benar dari formulirmu, bukan dipalsukan situs lain.</p>
+<p>Kenapa hapus via link GET biasa berbahaya? Dua alasan, hafalkan untuk interview: (1) <strong>GET wajib aman</strong> — browser, crawler Google, bahkan fitur <em>prefetch</em> boleh mengunjungi link GET kapan saja tanpa izin; kalau kunjungan = hapus data, sekali di-crawl habis datamu. (2) <strong>CSRF satu piksel</strong> — penyerang bisa menanam <code class="inline">&lt;img src="situsmu/hapus/5"&gt;</code> di halaman lain dan browser korban otomatis "mengkliknya". Form POST + segel CSRF menutup kedua lubang itu.</p>
+<p><strong>Transfer ke kasus lain:</strong> <em>logout</em> wajib POST dengan alasan yang sama persis — itulah kenapa template Laravel selalu menulis form logout, bukan link. Setiap aksi yang <em>mengubah</em> sesuatu: bungkus POST + segel.</p>
+
+<h2>4. Beda #12 dan #13 dalam satu kalimat</h2>
+<p>#12 mengisi <strong>isi</strong> modal (teks yang dibaca manusia). #13 mengisi <strong>tujuan</strong> form (alamat yang dibaca server). State-nya mirip (dulu <code class="inline">selected</code>, kini alamat + label), modalnya mirip, tapi yang satu untuk <em>melihat</em>, yang satu untuk <em>bertindak</em>. Kalau kamu bisa menjelaskan bedanya tanpa melihat catatan, konsepnya sudah milikmu.</p>
+
+<div class="source"><strong>Sumber utama:</strong> <a href="https://alpinejs.dev/essentials/templating">Alpine.js — Templating (binding)</a> dan <a href="https://laravel.com/docs/csrf">Laravel Docs — CSRF Protection</a>. Baca keduanya sebelum mulai coding — masing-masing di bawah 5 menit.</div>
+
+<h2>Misimu (bukan contekan — pertanyaan panduan)</h2>
+<ol>
+<li>Di state <code class="inline">x-data</code>-mu, nilai awal apa yang masuk akal untuk "alamat tujuan" dan "label baris" sebelum ada yang diklik? Kenapa string kosong lebih aman daripada <code class="inline">null</code> untuk atribut form?</li>
+<li>Tombol Hapus di tiap baris harus menitipkan dua hal dari Blade (ingat Lesson 0001: Blade → browser hanya lewat HTML). Apa keduanya, dan lewat mekanisme apa?</li>
+<li>Di dalam modal, elemen apa yang alamatnya ditulis ulang dengan titik-dua? Elemen apa yang isinya ditulis ulang dengan <code class="inline">x-text</code>? Kenapa satu butuh <code class="inline">:</code> dan satunya tidak?</li>
+<li>Tombol "Konfirmasi" di modal: tipe submit atau button biasa? Apa yang terjadi kalau kamu salah pilih?</li>
+<li>Uji dengan skenario: klik Hapus baris A → Batal → klik Hapus baris B → Konfirmasi. Baris mana yang harus terhapus? State apa yang menjamin itu?</li>
+</ol>
+
+<div class="quiz" x-data="{ q1:null }">
+<h2>Retrieval check</h2>
+<p><strong>Q1.</strong> Titik-dua di <code class="inline">:action</code> artinya…</p>
+<button @click="q1='a'">Nilai tetap permanen</button>
+<button @click="q1='b'">Nilai mengikuti state</button>
+<button @click="q1='c'">Atribut jadi tersembunyi</button>
+<p class="fb" x-show="q1==='a'">Belum tepat — permanen justru tanpa titik-dua. ❌</p>
+<p class="fb" x-show="q1==='b'">Tepat — atribut terikat ke state. ✅</p>
+<p class="fb" x-show="q1==='c'">Belum tepat — visibilitas urusan x-show. ❌</p>
+<p><strong>Q2 (lisan, untuk interview).</strong> "Kenapa hapus tidak boleh via link GET biasa?" — jawab dengan dua alasan (prefetch/crawler + CSRF) tanpa melihat bagian 3.</p>
+</div>
+
+<div class="nav"><a href="0002-membaca-log-laravel.html">← Lesson 0002</a><a href="../reference/alpine-modal-cheatsheet.html">Cheatsheet →</a></div>
+<footer class="ask">Aturan main: tulis kodemu sendiri dulu. Kalau mentok &gt;20 menit di satu pertanyaan panduan, tanyakan nomornya ke agent gurumu — saya beri petunjuk, bukan jawaban. Kalau modal #12-mu belum lulus acceptance criteria, selesaikan itu dulu (dependency issue #13).</footer>
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.2/dist/cdn.min.js"></script>
+</body>
+</html>

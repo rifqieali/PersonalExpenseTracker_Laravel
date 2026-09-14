@@ -10,6 +10,12 @@
   Penjelasan kenapa modal jangan disarangkan di struktur sempit. Gunakan untuk: posisi modal di luar `<table>`.
 - [Laravel Blade Docs — Displaying Data / @json](https://laravel.com/docs/blade)
   Cara aman mengirim data server ke JS (`@json`, `data-*`). Gunakan untuk: jembatan Blade → Alpine.
+- [Alpine.js — Essentials: Templating (x-bind / colon shorthand)](https://alpinejs.dev/essentials/templating)
+  Makna `:` sebagai attribute binding dinamis. Gunakan untuk: issue #13 (`:action`), semua kasus satu-elemen-banyak-nilai.
+- [Laravel Docs — CSRF Protection](https://laravel.com/docs/csrf)
+  Segel `@csrf` + method spoofing `@method`. Gunakan untuk: semua form destruktif (hapus, logout), jawaban interview GET-vs-POST.
+- [MDN — HTTP: Safe methods (GET/HEAD)](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP)
+  Definisi metode aman dan idempoten. Gunakan untuk: alasan hapus/logout tidak boleh via GET.
 
 ## Wisdom (Communities)
 
